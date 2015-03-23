@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+
+	<title>Author & Books</title>
+
+</head>
+<body>
+  <div class="container" ng-controller="authorsController" style="margin-top: 80px;">
+    
+    <div class="row">
+      <div class="col-md-2">
+        <button ng-click="randomSelect()" class="btn btn-default" type="submit">Мне повезет!
+        </button>
+      </div>
+    </div>
+
+    <br>
+      
+    <div class="row">
+      <div class="col-md-3">
+        <label for="author">Автор</label>
+        <select id="author" ng-change="authorChanged()" ng-model="currentAuthor" ng-options="author.name for author in authors">
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="book">Книга</label>
+        <select id="book" ng-model="book" ng-options="book for book in currentAuthor.books">
+        </select>       
+      </div>
+    </div>
+ 
+    <br>
+    
+    <div class="row">
+      <div class="col-md-10 well" ng-show="currentAuthor.name && book">
+        {{currentAuthor.name}} написал {{book}}
+      </div>  
+    </div>
+ 
+    
+
+  </div>
+  
+
+
+    
+  
+
+</body>
+
+<script src="node_modules/angular/angular.js"></script>
+<script src="js/app.js"></script>
+<script src="js/authorsController.js"></script>
+</html>

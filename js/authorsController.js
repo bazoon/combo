@@ -17,14 +17,13 @@ angular.module('authors',[])
 				  		},
 
 				  		{
-
 				  			name: 'Пришвин',
 				  			books: ['Кладовая солнца', 'Выскочка']
 				  		}
   	];
 
   	$scope.authorChanged = function() {
-  		$scope.book = ''
+  		$scope.book = undefined;
   	};
 
 	$scope.randomSelect = function() {
@@ -32,5 +31,19 @@ angular.module('authors',[])
 		$scope.currentAuthor = randomAuthor;
 		$scope.book = randomAuthor.books[Math.floor(Math.random() * randomAuthor.books.length)];
 	};
+
+	$scope.hint = function() {
+		if (($scope.currentAuthor === undefined) && ($scope.book === undefined)) {
+			return 'Выберите автора';
+		}
+
+		if (($scope.currentAuthor != undefined) && ($scope.book === undefined)) {
+			return 'Выберите книгу';
+		}
+		
+		return $scope.currentAuthor.name + ' написал ' + $scope.book;
+		
+
+	}
 
 });

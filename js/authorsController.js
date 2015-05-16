@@ -1,49 +1,54 @@
-angular.module('authors',[])
-.controller('authorsController', function($scope){
 
-  	$scope.authors = [
-				  		{ name: 'Пушкин',
-				  		  books: ['Сказка о царе Салтане', 'Сказка о рыбаке и рыбке', 'Скупой рыцарь']
-				  		},	
 
-				  		{
-				  			name: 'Гоголь',
-				  			books: ['Вий','Вечера на хуторе близ Диканьки']
-				  		},
+angular.module('authors', ['api.services'])
+	.controller('authorsController', authorsController);
 
-				  		{
-				  			name: 'Толстой',
-				  			books: ['Война и Мир','Воскресенье','Анна Каренина']
-				  		},
+authorsController.$inject  = ["$scope", 'selectedFactory'];
 
-				  		{
-				  			name: 'Пришвин',
-				  			books: ['Кладовая солнца', 'Выскочка']
-				  		}
-  	];
+	function authorsController ($scope, selectedFactory) {
 
-  	$scope.authorChanged = function() {
-  		$scope.book = undefined;
-  	};
+			
 
-	$scope.randomSelect = function() {
-		var randomAuthor = $scope.authors[Math.floor(Math.random() * $scope.authors.length)];
-		$scope.currentAuthor = randomAuthor;
-		$scope.book = randomAuthor.books[Math.floor(Math.random() * randomAuthor.books.length)];
-	};
+			
+		selectedFactory.getAuthors().then(function  (response) {
+			$scope.authors = response;
+			
+			var s =selectedFactory.getCurrentBooks().then(function (response) {
+				$scope.books = response;
+			});
 
-	$scope.hint = function() {
-		if (($scope.currentAuthor === undefined) && ($scope.book === undefined)) {
-			return 'Выберите автора';
-		}
+			$scope.currentAuthor = selectedFactory.getCurrentAuthor();
 
-		if (($scope.currentAuthor != undefined) && ($scope.book === undefined)) {
-			return 'Выберите книгу';
-		}
-		
-		return $scope.currentAuthor.name + ' написал ' + $scope.book;
-		
+		})
+
+
+		// booksStore.getBooks(1).then(function  (response) {
+			
+		// })
+
+	  	
+	  	$scope.authorChanged = function() {
+	  		$scope.book = undefined;
+	  	};
+
+		$scope.randomSelect = function() {
+			var randomAuthor = $scope.authors[Math.floor(Math.random() * $scope.authors.length)];
+			$scope.currentAuthor = randomAuthor;
+			$scope.book = randomAuthor.books[Math.floor(Math.random() * randomAuthor.books.length)];
+		};
+
+		$scope.hint = function() {
+			if (($scope.currentAuthor === undefined) && ($scope.book === undefined)) {
+				return 'Выберите автора';
+			}
+
+			if (($scope.currentAuthor != undefined) && ($scope.book === undefined)) {
+				return 'Выберите книгу';
+			}
+			
+			return $scope.currentAuthor.name + ' написал ' + $scope.book;
+			
 
 	}
 
-});
+}

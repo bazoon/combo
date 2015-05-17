@@ -19,11 +19,12 @@
     };
 
     function getAuthors () {
-      var deferred = $q.defer();
       var authors = cache.get('authors');
 
       if (authors) {
-        return deferred.resolve(authors).promise;
+        var defer = $q.defer();
+        defer.resolve(authors)
+        return defer.promise;
       } else {
         return authorsApiFactory.getAuthors().then(getAuthorsSuccess);
       }

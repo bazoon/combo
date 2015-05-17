@@ -44,33 +44,134 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(1);
-	module.exports = __webpack_require__(9);
+	__webpack_require__(6);
+	__webpack_require__(2);
+	module.exports = __webpack_require__(3);
 
 
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(3);
-	__webpack_require__(4)
 	__webpack_require__(5);
-	__webpack_require__(10)
-	__webpack_require__(2);
-	__webpack_require__(7);
-	__webpack_require__(8);
-	__webpack_require__(11)
-	angular.module('myApp', [ 'authors', 'api.services', 'store.services', 'logic.services']);
+	module.exports = angular
+	  .module('store.services', ['api.services']);
+
 
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
+	
+
+	angular.module('authors', ['api.services'])
+		.controller('authorsController', authorsController);
+
+	authorsController.$inject = ["$scope", 'selectedFactory'];
+
+		function authorsController ($scope, selectedFactory) {
+
+			$scope.selected = selectedFactory;
+			selectedFactory.activate();
+
+
+
+	}
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
 	(function() {
 	  'use strict';
 
-	  
+
+
+	  module.exports = angular
+	    .module('logic.services', [])
+	    .factory('selectedFactory', selectedFactory);
+
+	  selectedFactory.$inject = ['$q', 'authorsStore', 'booksStore'];
+
+
+	  function selectedFactory ($q, authorsStore, booksStore) {
+
+
+	    var service = {
+	      activate: activate,
+	      getAuthors: getAuthors,
+	      authorChanged: authorChanged,
+	      getCurrentBooks: getCurrentBooks,
+	      randomSelect: randomSelect,
+	      hint: hint
+	    };
+
+	    function activate () {
+	      getAuthors().then(getCurrentBooks);
+	    }
+
+	    function getAuthors () {
+	      return authorsStore.getAuthors().then(function (response) {
+	        service.authors = response;
+	        service.author = service.authors[0];
+	        return service.authors;
+	      });
+	    }
+
+
+	    function getCurrentBooks () {
+	      return booksStore.getBooks(service.author.id).then(function (response) {
+	        service.books = response;
+	        return service.books;
+	      });
+	    }
+
+	    function authorChanged () {
+	      service.book = undefined;
+	      getCurrentBooks();
+	    }
+
+	      function randomSelect () {
+	        var randomAuthor = service.authors[Math.floor(Math.random() * service.authors.length)];
+	        service.author = randomAuthor;
+	        getCurrentBooks().then(function () {
+	          service.book = service.books[Math.floor(Math.random() * service.books.length)];
+	        });
+	      }
+
+	      function hint () {
+
+	        if ((service.author === undefined) && (service.book === undefined)) {
+	          return 'Выберите автора';
+	        }
+
+	        if ((service.author != undefined) && (service.book === undefined)) {
+	          return 'Выберите книгу';
+	        }
+
+	        return service.author.name + ' написал "' + service.book.name + '"';
+
+	    }
+
+
+	    return service;
+
+	  }
+
+	}
+	)();
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function() {
+	  'use strict';
+
+
 	  module.exports = angular
 	    .module('api.services')
 	    .factory('apiFactory', apiFactory);
@@ -95,37 +196,44 @@
 
 
 /***/ },
-/* 3 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = angular
 	  .module('api.services', []);
 
+
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
+	__webpack_require__(5);
+	__webpack_require__(1);
+	__webpack_require__(7);
+	__webpack_require__(8);
+	__webpack_require__(4);
+	__webpack_require__(9);
+	__webpack_require__(10);
 	__webpack_require__(3);
-	module.exports = angular
-	  .module('store.services', ['api.services']);
+	angular.module('myApp', [ 'authors', 'api.services', 'store.services', 'logic.services']);
+
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function() {
 	  'use strict';
+	  var routes = __webpack_require__(11);
 
-	  var routes = __webpack_require__(6);
-	  
 	  module.exports = angular
 	    .module('api.services')
 	    .factory('authorsApiFactory', authorsApiFactory);
 
-	  authorsApiFactory.$inject = ['$q', 'apiFactory'];
+	  authorsApiFactory.$inject = ['apiFactory'];
 
-	  
-	  function authorsApiFactory ($q, apiFactory) {
+
+	  function authorsApiFactory (apiFactory) {
 
 	    var service = {
 	      getAuthors: getAuthors
@@ -133,7 +241,7 @@
 
 	    return service;
 
-	    function getAuthors (argument) {
+	    function getAuthors () {
 	      return apiFactory.get(routes.authorsPath());
 	    }
 
@@ -144,43 +252,55 @@
 
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function() {
 	  'use strict';
 
-	  module.exports = {
+	  var routes = __webpack_require__(11);
 
-	    authorsPath: function () {
-	      return "http://demo4758158.mockable.io/authors";
-	    },
+	  module.exports = angular
+	    .module('api.services')
+	    .factory('booksApiFactory', booksApiFactory);
 
-	    booksPath: function (authorId) {
-	      return "http://demo4758158.mockable.io/books/" + authorId;
+	  booksApiFactory.$inject = ['$q', 'apiFactory'];
+
+
+	  function booksApiFactory ($q, apiFactory) {
+
+	    var service = {
+	      getBooks: getBooks
+	    };
+
+	    return service;
+
+	    function getBooks (authorId) {
+	      return apiFactory.get(routes.booksPath(authorId));
 	    }
 
+	  }
 
-	   };
-	})();
+	}
+	)();
 
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function() {
 	  'use strict';
 
-	  
-	  
+
+
 	  module.exports = angular
 	    .module('store.services')
 	    .factory('authorsStore', authorsStore);
 
 	  authorsStore.$inject = ['$q', 'authorsApiFactory', '$cacheFactory'];
 
-	  
+
 	  function authorsStore ($q, authorsApiFactory, $cacheFactory) {
 
 	    var cache = $cacheFactory('cache');
@@ -192,9 +312,9 @@
 	    function getAuthors () {
 	      var deferred = $q.defer();
 	      var authors = cache.get('authors');
-	      
+
 	      if (authors) {
-	        return deferred.resolve(authors).promise;  
+	        return deferred.resolve(authors).promise;
 	      } else {
 	        return authorsApiFactory.getAuthors().then(getAuthorsSuccess);
 	      }
@@ -219,21 +339,19 @@
 
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function() {
 	  'use strict';
 
-	  
-	  
 	  module.exports = angular
 	    .module('store.services')
 	    .factory('booksStore', booksStore);
 
 	  booksStore.$inject = ['$q', 'booksApiFactory', '$cacheFactory'];
 
-	  
+
 	  function booksStore ($q, booksApiFactory, $cacheFactory) {
 
 	    var cache = $cacheFactory('mycache');
@@ -243,10 +361,10 @@
 	    };
 
 	    function getBooks (authorId) {
-	      
+
 	      var books = cache.get('books' + authorId);
 	      if (books) {
-	        var defer = $q.defer()
+	        var defer = $q.defer();
 	        defer.resolve(books);
 	        return defer.promise;
 	      } else {
@@ -270,142 +388,25 @@
 
 
 /***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-
-	angular.module('authors', ['api.services'])
-		.controller('authorsController', authorsController);
-
-	authorsController.$inject  = ["$scope", 'selectedFactory'];
-
-		function authorsController ($scope, selectedFactory) {
-
-			$scope.selected = selectedFactory;
-			selectedFactory.activate(); 
-
-			
-
-	}
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function() {
-	  'use strict';
-
-	  var routes = __webpack_require__(6);
-	  
-	  module.exports = angular
-	    .module('api.services')
-	    .factory('booksApiFactory', booksApiFactory);
-
-	  booksApiFactory.$inject = ['$q', 'apiFactory'];
-
-	  
-	  function booksApiFactory ($q, apiFactory) {
-
-	    var service = {
-	      getBooks: getBooks
-	    };
-
-	    return service;
-
-	    function getBooks (authorId) {
-	      return apiFactory.get(routes.booksPath(authorId));
-	    }
-
-	  }
-
-	}
-	)();
-
-
-/***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function() {
 	  'use strict';
 
-	  
-	  
-	  module.exports = angular
-	    .module('logic.services', [])
-	    .factory('selectedFactory', selectedFactory);
+	  module.exports = {
 
-	  selectedFactory.$inject = ['$q', 'authorsStore', 'booksStore'];
+	    authorsPath: function () {
+	      return "http://demo4758158.mockable.io/authors";
+	    },
 
-	  
-	  function selectedFactory ($q, authorsStore, booksStore) {
-
-	    
-	    var service = {
-	      activate: activate,
-	      getAuthors: getAuthors,
-	      authorChanged: authorChanged,
-	      getCurrentBooks: getCurrentBooks,
-	      randomSelect: randomSelect,
-	      hint: hint
-	    };
-
-	    function activate () {
-	      getAuthors().then(getCurrentBooks);
-	    }
-
-	    function getAuthors () {
-	      return authorsStore.getAuthors().then(function  (response) {
-	        service.authors = response;
-	        service.author = service.authors[0];
-	        return service.authors;
-	      });
-	    }
-	    
-	    
-	    function getCurrentBooks () {
-	      return booksStore.getBooks(service.author.id).then(function  (response) {
-	        service.books = response;
-	        return service.books;
-	      });
-	    }
-
-	    function authorChanged () {
-	      service.book = undefined;
-	      getCurrentBooks();
-	    }
-
-	      function randomSelect () {
-	        var randomAuthor = service.authors[Math.floor(Math.random() * service.authors.length)];
-	        service.author = randomAuthor;
-	        getCurrentBooks().then(function  () {
-	          service.book = service.books[Math.floor(Math.random() * service.books.length)];  
-	        });
-	      }
-
-	      function hint () {
-	        
-	        if ((service.author === undefined) && (service.book === undefined)) {
-	          return 'Выберите автора';
-	        }
-
-	        if ((service.author != undefined) && (service.book === undefined)) {
-	          return 'Выберите книгу';
-	        }
-	        
-	        return service.author.name + ' написал ' + service.book.name;
-	      
+	    booksPath: function (authorId) {
+	      return "http://demo4758158.mockable.io/books/" + authorId;
 	    }
 
 
-	    return service;
-
-	  }
-
-	}
-	)();
+	   };
+	})();
 
 
 /***/ }

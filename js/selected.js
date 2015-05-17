@@ -65,7 +65,7 @@
           return 'Выберите книгу';
         }
 
-        return service.author.name + ' написал ' + service.book.name;
+        return service.author.name + ' написал "' + service.book.name + '"';
 
     }
 

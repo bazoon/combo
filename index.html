@@ -10,7 +10,7 @@
 <body>
   <div class="container" ng-controller="authorsController" style="margin-top: 80px;">
     
-    <h2 style="text-align: center">{{ hint(); }}</h2>
+    <h2 style="text-align: center">{{ selected.hint(); }}</h2>
     <div class="row">
       <div class="col-md-2">
         <button ng-click="randomSelect()" class="btn btn-default" type="submit">Мне повезет!
@@ -19,16 +19,18 @@
     </div>
 
     <br>
+
+    <a href="#" ng-click="foo()">Foo</a>
       
     <div class="row">
       <div class="col-md-3">
         <label for="author">Автор</label>
-        <select id="author" ng-change="authorChanged()" ng-model="currentAuthor" ng-options="author.name for author in authors">
+        <select id="author" ng-change="selected.authorChanged()" ng-model="selected.author" ng-options="author.name for author in selected.authors">
         </select>
       </div>
       <div class="col-md-3">
         <label for="book">Книга</label>
-        <select id="book" ng-model="book" ng-options="book.name for book in books">
+        <select id="book" ng-model="selected.book" ng-options="book.name for book in selected.books">
         </select>       
       </div>
     </div>

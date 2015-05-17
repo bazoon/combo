@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  
+
   module.exports = angular
     .module('api.services')
     .factory('apiFactory', apiFactory);

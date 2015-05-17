@@ -1,15 +1,15 @@
 (function() {
   'use strict';
 
-  
-  
+
+
   module.exports = angular
     .module('store.services')
     .factory('authorsStore', authorsStore);
 
   authorsStore.$inject = ['$q', 'authorsApiFactory', '$cacheFactory'];
 
-  
+
   function authorsStore ($q, authorsApiFactory, $cacheFactory) {
 
     var cache = $cacheFactory('cache');
@@ -21,9 +21,9 @@
     function getAuthors () {
       var deferred = $q.defer();
       var authors = cache.get('authors');
-      
+
       if (authors) {
-        return deferred.resolve(authors).promise;  
+        return deferred.resolve(authors).promise;
       } else {
         return authorsApiFactory.getAuthors().then(getAuthorsSuccess);
       }

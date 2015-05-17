@@ -243,23 +243,22 @@
 	    };
 
 	    function getBooks (authorId) {
-	      var deferred = $q.defer();
-	      var books = cache.get('books' + authorId);
 	      
+	      var books = cache.get('books' + authorId);
 	      if (books) {
-	        return deferred.resolve(books).promise;  
+	        var defer = $q.defer()
+	        defer.resolve(books);
+	        return defer.promise;
 	      } else {
 	        return booksApiFactory.getBooks(authorId).then(getBooksSuccess);
 	      }
 
 	      function getBooksSuccess (response) {
-	        cache.put('books', response.data);
-	        console.log('getBooksSuccess', response.data);
+	        cache.put('books' + authorId, response.data);
 	        return response.data;
 	      }
 
 	    }
-
 
 
 	    return service;
@@ -283,49 +282,10 @@
 
 		function authorsController ($scope, selectedFactory) {
 
-				
+			$scope.selected = selectedFactory;
+			selectedFactory.activate(); 
 
-				
-			selectedFactory.getAuthors().then(function  (response) {
-				$scope.authors = response;
-				
-				var s =selectedFactory.getCurrentBooks().then(function (response) {
-					$scope.books = response;
-				});
-
-				$scope.currentAuthor = selectedFactory.getCurrentAuthor();
-
-			})
-
-
-			// booksStore.getBooks(1).then(function  (response) {
-				
-			// })
-
-		  	
-		  	$scope.authorChanged = function() {
-		  		$scope.book = undefined;
-		  	};
-
-			$scope.randomSelect = function() {
-				var randomAuthor = $scope.authors[Math.floor(Math.random() * $scope.authors.length)];
-				$scope.currentAuthor = randomAuthor;
-				$scope.book = randomAuthor.books[Math.floor(Math.random() * randomAuthor.books.length)];
-			};
-
-			$scope.hint = function() {
-				if (($scope.currentAuthor === undefined) && ($scope.book === undefined)) {
-					return 'Выберите автора';
-				}
-
-				if (($scope.currentAuthor != undefined) && ($scope.book === undefined)) {
-					return 'Выберите книгу';
-				}
-				
-				return $scope.currentAuthor.name + ' написал ' + $scope.book;
-				
-
-		}
+			
 
 	}
 
@@ -382,47 +342,63 @@
 	  
 	  function selectedFactory ($q, authorsStore, booksStore) {
 
-	    var _currentAuthor = null;
-	    var _authors = null;
-	    var _books = null;
-
+	    
 	    var service = {
 	      activate: activate,
 	      getAuthors: getAuthors,
-	      setCurrentAuthor: setCurrentAuthor,
-	      getCurrentAuthor: getCurrentAuthor,
-	      getCurrentBooks: getCurrentBooks
+	      authorChanged: authorChanged,
+	      getCurrentBooks: getCurrentBooks,
+	      randomSelect: randomSelect,
+	      hint: hint
 	    };
 
 	    function activate () {
-	      console.log('activate');
+	      getAuthors().then(getCurrentBooks);
 	    }
 
 	    function getAuthors () {
 	      return authorsStore.getAuthors().then(function  (response) {
-	        _authors = response;
-	        setCurrentAuthor(_authors[0]);
-	        return _authors;
+	        service.authors = response;
+	        service.author = service.authors[0];
+	        return service.authors;
 	      });
 	    }
 	    
-	    function setCurrentAuthor (author) {
-	       _currentAuthor = author; 
-	    }
-
-	    function getCurrentAuthor () {
-	      return _currentAuthor;
-	    }
-
+	    
 	    function getCurrentBooks () {
-	      
-	      return booksStore.getBooks(1).then(function  (response) {
-	        _books = response;
-	        return _books;
+	      return booksStore.getBooks(service.author.id).then(function  (response) {
+	        service.books = response;
+	        return service.books;
 	      });
-
-
 	    }
+
+	    function authorChanged () {
+	      service.book = undefined;
+	      getCurrentBooks();
+	    }
+
+	      function randomSelect () {
+	        var randomAuthor = service.authors[Math.floor(Math.random() * service.authors.length)];
+	        service.author = randomAuthor;
+	        getCurrentBooks().then(function  () {
+	          service.book = service.books[Math.floor(Math.random() * service.books.length)];  
+	        });
+	      }
+
+	      function hint () {
+	        
+	        if ((service.author === undefined) && (service.book === undefined)) {
+	          return 'Выберите автора';
+	        }
+
+	        if ((service.author != undefined) && (service.book === undefined)) {
+	          return 'Выберите книгу';
+	        }
+	        
+	        return service.author.name + ' написал ' + service.book.name;
+	      
+	    }
+
 
 	    return service;
 

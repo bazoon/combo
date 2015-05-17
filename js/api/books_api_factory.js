@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  var routes = require("./api_routes");
+  var routes = require("./api_routes_module");
 
   module.exports = angular
     .module('api.services')

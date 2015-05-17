@@ -50,33 +50,20 @@
 
 
 /***/ },
-/* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(5);
-	module.exports = angular
-	  .module('store.services', ['api.services']);
-
-
-
-/***/ },
+/* 1 */,
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
 
-	angular.module('authors', ['api.services'])
-		.controller('authorsController', authorsController);
+	angular.module('page',[])
+		.controller('pageController', pageController);
 
-	authorsController.$inject = ["$scope", 'selectedFactory'];
+	pageController.$inject = ["$scope", 'selectedFactory'];
 
-		function authorsController ($scope, selectedFactory) {
-
+		function pageController ($scope, selectedFactory) {
 			$scope.selected = selectedFactory;
 			selectedFactory.activate();
-
-
-
 	}
 
 
@@ -208,14 +195,14 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(5);
-	__webpack_require__(1);
+	__webpack_require__(13);
 	__webpack_require__(7);
 	__webpack_require__(8);
 	__webpack_require__(4);
 	__webpack_require__(9);
 	__webpack_require__(10);
 	__webpack_require__(3);
-	angular.module('myApp', [ 'authors', 'api.services', 'store.services', 'logic.services']);
+	angular.module('myApp', [ 'page', 'api.services', 'store.services', 'logic.services']);
 
 
 /***/ },
@@ -310,11 +297,12 @@
 	    };
 
 	    function getAuthors () {
-	      var deferred = $q.defer();
 	      var authors = cache.get('authors');
 
 	      if (authors) {
-	        return deferred.resolve(authors).promise;
+	        var defer = $q.defer();
+	        defer.resolve(authors)
+	        return defer.promise;
 	      } else {
 	        return authorsApiFactory.getAuthors().then(getAuthorsSuccess);
 	      }
@@ -394,19 +382,53 @@
 	(function() {
 	  'use strict';
 
+	  var config = __webpack_require__(12);
+
 	  module.exports = {
 
 	    authorsPath: function () {
-	      return "http://demo4758158.mockable.io/authors";
+	      return apiPoint("authors");
 	    },
 
 	    booksPath: function (authorId) {
-	      return "http://demo4758158.mockable.io/books/" + authorId;
+	      return apiPoint("books", authorId);
 	    }
 
 
 	   };
+
+	  function apiPoint () {
+	    var args = Array.prototype.slice.call(arguments);
+	    return config.apiServer + args.join("/");
+	  }
+
+
 	})();
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function() {
+	  'use strict';
+
+	  module.exports = {
+	    apiServer: "http://demo4758158.mockable.io/"
+	  };
+
+
+	})();
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	__webpack_require__(5);
+	module.exports = angular
+	  .module('store.services', ['api.services']);
+
 
 
 /***/ }

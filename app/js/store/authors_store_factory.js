@@ -26,9 +26,7 @@
       var authors = cache.get('authors');
 
       if (authors) {
-        var defer = $q.defer();
-        defer.resolve(authors);
-        return defer.promise;
+        return $q.when(authors);
       } else {
         return authorsApiFactory.getAuthors().then(getAuthorsSuccess);
       }

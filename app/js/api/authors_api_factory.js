@@ -1,6 +1,9 @@
 (function() {
   'use strict';
+
+  require("../api/api_factory");
   var routes = require("./api_routes_module");
+
 
   module.exports = angular
     .module('api.services')
@@ -16,6 +19,8 @@
     };
 
     return service;
+
+    // //////////
 
     function getAuthors () {
       return apiFactory.get(routes.authorsPath());

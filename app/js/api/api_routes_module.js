@@ -4,17 +4,19 @@
   var config = require("./api_config");
 
   module.exports = {
-
-    authorsPath: function () {
-      return apiPoint("authors");
-    },
-
-    booksPath: function (authorId) {
-      return apiPoint("books", authorId);
-    }
-
-
+    authorsPath: authorsPath,
+    booksPath: booksPath
    };
+
+   // /////////
+
+  function authorsPath () {
+    return apiPoint("authors");
+  }
+
+  function booksPath (authorId) {
+    return apiPoint("books", authorId);
+  }
 
   function apiPoint () {
     var args = Array.prototype.slice.call(arguments);

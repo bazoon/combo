@@ -1,6 +1,8 @@
 (function() {
   'use strict';
 
+  require("./store/authors_store_factory");
+  require("./store/books_store_factory");
 
 
   module.exports = angular
@@ -22,24 +24,43 @@
       hint: hint
     };
 
+    return service;
+
+
+    // /////////////
     function activate () {
       getAuthors().then(getCurrentBooks);
     }
 
     function getAuthors () {
-      return authorsStore.getAuthors().then(function (response) {
+      return authorsStore.getAuthors().then(getAuthorsSuccess, getAuthorsFailed);
+
+      function getAuthorsSuccess (response) {
         service.authors = response;
         service.author = service.authors[0];
+        clearError();
         return service.authors;
-      });
+      }
+
+      function getAuthorsFailed () {
+        service.error = "Ошибка загрузки авторов";
+      }
+
     }
 
 
     function getCurrentBooks () {
-      return booksStore.getBooks(service.author.id).then(function (response) {
+      return booksStore.getBooks(service.author.id).then(getBooksSuccess, getBooksFailed);
+
+      function getBooksSuccess (response) {
         service.books = response;
+        clearError();
         return service.books;
-      });
+      }
+
+      function getBooksFailed () {
+        service.error = "Ошибка загрузки книг";
+      }
     }
 
     function authorChanged () {
@@ -69,8 +90,12 @@
 
     }
 
+    function clearError () {
+      service.error = undefined;
+    }
 
-    return service;
+
+
 
   }
 

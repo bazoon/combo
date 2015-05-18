@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-
+  require("../api/authors_api_factory");
 
   module.exports = angular
     .module('store.services')
@@ -18,12 +18,16 @@
       getAuthors: getAuthors
     };
 
+    return service;
+
+    // //////////
+
     function getAuthors () {
       var authors = cache.get('authors');
 
       if (authors) {
         var defer = $q.defer();
-        defer.resolve(authors)
+        defer.resolve(authors);
         return defer.promise;
       } else {
         return authorsApiFactory.getAuthors().then(getAuthorsSuccess);
@@ -35,12 +39,6 @@
       }
 
     }
-
-
-
-
-
-    return service;
 
   }
 

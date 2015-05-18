@@ -26,9 +26,7 @@
 
       var books = cache.get('books' + authorId);
       if (books) {
-        var defer = $q.defer();
-        defer.resolve(books);
-        return defer.promise;
+        return $q.when(books)
       } else {
         return booksApiFactory.getBooks(authorId).then(getBooksSuccess);
       }

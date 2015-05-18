@@ -1,6 +1,8 @@
 (function() {
   'use strict';
 
+  require("../api/books_api_factory");
+
   module.exports = angular
     .module('store.services')
     .factory('booksStore', booksStore);
@@ -15,6 +17,10 @@
     var service = {
       getBooks: getBooks
     };
+
+    return service;
+
+    // ////////////
 
     function getBooks (authorId) {
 
@@ -35,7 +41,7 @@
     }
 
 
-    return service;
+
 
   }
 

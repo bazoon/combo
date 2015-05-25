@@ -1,5 +1,5 @@
-require("./api/api_services_module");
-require("./store/store_services_module");
+require("./authors/authors");
+require("./books/books");
 require("./selected_factory");
 
-angular.module('myApp', [ 'page', 'api.services', 'store.services', 'logic.services']);
+angular.module('myApp', [ 'page', 'logic.services', 'authors', 'books']);

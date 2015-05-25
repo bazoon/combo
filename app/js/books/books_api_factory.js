@@ -1,11 +1,11 @@
 (function() {
   'use strict';
 
-  var routes = require("./api_routes_module");
+  var routes = require("../api/api_routes_module");
   require("../api/api_factory");
 
   module.exports = angular
-    .module('api.services')
+    .module('books')
     .factory('booksApiFactory', booksApiFactory);
 
   booksApiFactory.$inject = ['$q', 'apiFactory'];

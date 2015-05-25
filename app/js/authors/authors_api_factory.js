@@ -2,11 +2,11 @@
   'use strict';
 
   require("../api/api_factory");
-  var routes = require("./api_routes_module");
+  var routes = require("../api/api_routes_module");
 
 
   module.exports = angular
-    .module('api.services')
+    .module('authors')
     .factory('authorsApiFactory', authorsApiFactory);
 
   authorsApiFactory.$inject = ['apiFactory'];

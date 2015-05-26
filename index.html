@@ -9,11 +9,11 @@
 </head>
 <body>
   <div class="container" ng-controller="pageController as page" style="margin-top: 80px;">
-    <h2 class="alert alert-danger" ng-show="page.selected.error" style="text-align: center">{{ selected.error }}</h2>
-    <h2 class="alert alert-info" style="text-align: center">{{ page.selected.hint(); }}</h2>
+    <h2 class="alert alert-danger" ng-show="page.error" style="text-align: center">{{ page.error }}</h2>
+    <h2 class="alert alert-info" style="text-align: center">{{ page.hint(); }}</h2>
     <div class="row">
       <div class="col-md-2">
-        <button ng-click="page.selected.randomSelect()" class="btn btn-primary" type="submit">Мне повезет!
+        <button ng-click="page.randomSelect()" class="btn btn-primary" type="submit">Мне повезет!
         </button>
       </div>
     </div>
@@ -23,12 +23,12 @@
     <div class="row">
       <div class="col-md-3">
         <label for="author">Автор</label>
-        <select id="author" ng-change="page.selected.authorChanged()" ng-model="page.selected.author" ng-options="author.name for author in page.selected.authors">
+        <select id="author" ng-change="page.authorChanged()" ng-model="page.author" ng-options="author.name for author in page.authors">
         </select>
       </div>
       <div class="col-md-3">
         <label for="book">Книга</label>
-        <select id="book" ng-model="page.selected.book" ng-options="book.name for book in page.selected.books">
+        <select id="book" ng-change="page.bookChanged()" ng-model="page.book" ng-options="book.name for book in page.books">
         </select>       
       </div>
     </div>

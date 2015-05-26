@@ -1,10 +1,9 @@
 (function() {
   'use strict';
 
-  require("../api/authors_api_factory");
 
   module.exports = angular
-    .module('store.services')
+    .module('authors')
     .factory('authorsStore', authorsStore);
 
   authorsStore.$inject = ['$q', 'authorsApiFactory', '$cacheFactory'];

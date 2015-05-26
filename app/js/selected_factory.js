@@ -1,12 +1,10 @@
 (function() {
   'use strict';
 
-  require("./store/authors_store_factory");
-  require("./store/books_store_factory");
-
+  
 
   module.exports = angular
-    .module('logic.services', [])
+    .module('logic.services', ['authors', 'books'])
     .factory('selectedFactory', selectedFactory);
 
   selectedFactory.$inject = ['$q', 'authorsStore', 'booksStore'];
@@ -14,11 +12,12 @@
 
   function selectedFactory ($q, authorsStore, booksStore) {
 
+    var state = {};
 
     var service = {
-      activate: activate,
-      getAuthors: getAuthors,
-      authorChanged: authorChanged,
+      setAuthors: setAuthors,
+      setCurrentAuthor: setCurrentAuthor,
+      setCurrentBook: setCurrentBook,
       getCurrentBooks: getCurrentBooks,
       randomSelect: randomSelect,
       hint: hint
@@ -28,34 +27,25 @@
 
 
     // /////////////
-    function activate () {
-      getAuthors().then(getCurrentBooks);
+    function setAuthors (authors) {
+      state.authors = authors;
     }
 
-    function getAuthors () {
-      return authorsStore.getAuthors().then(getAuthorsSuccess, getAuthorsFailed);
-
-      function getAuthorsSuccess (response) {
-        service.authors = response;
-        service.author = service.authors[0];
-        clearError();
-        return service.authors;
-      }
-
-      function getAuthorsFailed () {
-        service.error = "Ошибка загрузки авторов";
-      }
-
+    function setCurrentAuthor (author) {
+      state.author = author;
     }
 
+    function setCurrentBook (book) {
+      state.book = book;
+    }
 
+    
     function getCurrentBooks () {
-      return booksStore.getBooks(service.author.id).then(getBooksSuccess, getBooksFailed);
+      return booksStore.getBooks(state.author.id).then(getBooksSuccess, getBooksFailed);
 
       function getBooksSuccess (response) {
-        service.books = response;
-        clearError();
-        return service.books;
+        state.books = response;
+        return state.books;
       }
 
       function getBooksFailed () {
@@ -64,36 +54,34 @@
     }
 
     function authorChanged () {
-      service.book = undefined;
+      state.book = undefined;
       getCurrentBooks();
     }
 
-      function randomSelect () {
-        var randomAuthor = service.authors[Math.floor(Math.random() * service.authors.length)];
-        service.author = randomAuthor;
-        getCurrentBooks().then(function () {
-          service.book = service.books[Math.floor(Math.random() * service.books.length)];
-        });
+    function randomSelect () {
+      var randomAuthor = state.authors[Math.floor(Math.random() * state.authors.length)];
+      state.author = randomAuthor;
+
+      return getCurrentBooks().then(function () {
+        state.book = state.books[Math.floor(Math.random() * state.books.length)];
+        return { author: state.author, books: state.books, book: state.book };
+      });
+
+    }
+
+    function hint () {
+
+      if ((state.author === undefined) && (state.book === undefined)) {
+        return 'Выберите автора';
       }
 
-      function hint () {
+      if ((state.author != undefined) && (state.book === undefined)) {
+        return 'Выберите книгу';
+      }
 
-        if ((service.author === undefined) && (service.book === undefined)) {
-          return 'Выберите автора';
-        }
-
-        if ((service.author != undefined) && (service.book === undefined)) {
-          return 'Выберите книгу';
-        }
-
-        return service.author.name + ' написал "' + service.book.name + '"';
+      return state.author.name + ' написал "' + state.book.name + '"';
 
     }
-
-    function clearError () {
-      service.error = undefined;
-    }
-
 
 
 

@@ -12,13 +12,32 @@
 
   function selectedFactory ($q, authorsStore, booksStore) {
 
-    var state = {};
+    var state = {
+      set author (currentAuthor) {
+        this._author = currentAuthor;
+        getCurrentBooks();
+      },
+
+      get author () {
+        return this._author;
+      }
+
+
+    };
+
 
     var service = {
       setAuthors: setAuthors,
+      getAuthors: getAuthors,
+
       setCurrentAuthor: setCurrentAuthor,
+      getCurrentAuthor: getCurrentAuthor,
+      
       setCurrentBook: setCurrentBook,
       getCurrentBooks: getCurrentBooks,
+      
+      getState: getState,
+      
       randomSelect: randomSelect,
       hint: hint
     };
@@ -27,12 +46,25 @@
 
 
     // /////////////
+    function getState () {
+      return state;
+    }
+
     function setAuthors (authors) {
       state.authors = authors;
     }
 
+    function getAuthors () {
+      return $q.when(state.authors);
+    }
+
     function setCurrentAuthor (author) {
       state.author = author;
+      getCurrentBooks();
+    }
+
+    function getCurrentAuthor () {
+      return state.author;
     }
 
     function setCurrentBook (book) {

@@ -1,5 +1,6 @@
 require("./authors/authors");
 require("./books/books");
 require("./selected_factory");
-
-angular.module('myApp', [ 'page', 'logic.services', 'authors', 'books']);
+require('./pageController');
+require('./most_talked_authors_controller');
+angular.module('myApp', [ 'page', 'api.services', 'logic.services']);

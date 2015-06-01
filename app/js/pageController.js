@@ -20,13 +20,11 @@ function pageController ($scope, selectedFactory, authorsStore) {
   function getAuthors () {
     return authorsStore.getAuthors().then(getAuthorsSuccess, getAuthorsFailed);
 
-    function getAuthorsSuccess (response) {
-      page.authors = response;
-      if (page.authors instanceof Array) {
-        page.author = page.authors[0];
-        selectedFactory.setAuthors(page.authors);
-        selectedFactory.setCurrentAuthor(page.author);  
-        loadBooks();
+    function getAuthorsSuccess (authors) {
+      if (authors instanceof Array) {
+        selectedFactory.setAuthors(authors);
+        selectedFactory.setCurrentAuthor(authors[0]);  
+        page.state = selectedFactory.getState();
       }
     }
 
@@ -36,28 +34,8 @@ function pageController ($scope, selectedFactory, authorsStore) {
 
   }
 
-  function loadBooks () {
-    selectedFactory.getCurrentBooks().then(function (books) {
-      page.books = books
-      clearError();
-    });  
-  }
-
-  page.authorChanged = function () {
-    page.book = undefined;
-    loadBooks();
-  }
-
-  page.bookChanged = function () {
-    selectedFactory.setCurrentBook(page.book);  
-  }
-
   page.randomSelect = function () {
-    selectedFactory.randomSelect().then(function (response) {
-      page.author = response.author;
-      page.books = response.books;
-      page.book = response.book;
-    })
+    selectedFactory.randomSelect();
   }
 
   function clearError () {

@@ -46,7 +46,10 @@
 
 	__webpack_require__(7);
 	__webpack_require__(2);
-	module.exports = __webpack_require__(3);
+	__webpack_require__(3);
+	__webpack_require__(4);
+	__webpack_require__(5);
+	angular.module('myApp', [ 'page', 'api.services', 'logic.services']);
 
 
 /***/ },
@@ -56,8 +59,8 @@
 	(function() {
 	  'use strict';
 
-	  __webpack_require__(11);
-	  var routes = __webpack_require__(12);
+	  __webpack_require__(12);
+	  var routes = __webpack_require__(11);
 
 
 	  module.exports = angular
@@ -91,77 +94,18 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	
+	(function() {
+	    'use strict';
 
-	angular.module('page', [])
-		.controller('pageController', pageController);
+	    __webpack_require__(6);
 
-	pageController.$inject = ["$scope", 'selectedFactory', 'authorsStore'];
-
-	function pageController ($scope, selectedFactory, authorsStore) {
-	  var page = this;
-	  page.hint = selectedFactory.hint;
-	  
-	  activate();
-
-	 ///////////
-
-	  function activate () {
-	    getAuthors();
-	  }
-
-	  function getAuthors () {
-	    return authorsStore.getAuthors().then(getAuthorsSuccess, getAuthorsFailed);
-
-	    function getAuthorsSuccess (response) {
-	      page.authors = response;
-	      if (page.authors instanceof Array) {
-	        page.author = page.authors[0];
-	        selectedFactory.setAuthors(page.authors);
-	        selectedFactory.setCurrentAuthor(page.author);  
-	        loadBooks();
-	      }
-	    }
-
-	    function getAuthorsFailed () {
-	      page.error = "Ошибка загрузки авторов";
-	    }
-
-	  }
-
-	  function loadBooks () {
-	    selectedFactory.getCurrentBooks().then(function (books) {
-	      page.books = books
-	      clearError();
-	    });  
-	  }
-
-	  page.authorChanged = function () {
-	    page.book = undefined;
-	    loadBooks();
-	  }
-
-	  page.bookChanged = function () {
-	    selectedFactory.setCurrentBook(page.book);  
-	  }
-
-	  page.randomSelect = function () {
-	    selectedFactory.randomSelect().then(function (response) {
-	      page.author = response.author;
-	      page.books = response.books;
-	      page.book = response.book;
-	    })
-	  }
-
-	  function clearError () {
-	    page.error = undefined;
-	  }
+	    angular
+	        .module('books', ['api.services']);
 
 
-
-
-	}
-
+	    __webpack_require__(9);
+	    __webpack_require__(10)
+	})();
 
 /***/ },
 /* 3 */
@@ -181,13 +125,32 @@
 
 	  function selectedFactory ($q, authorsStore, booksStore) {
 
-	    var state = {};
+	    var state = {
+	      set author (currentAuthor) {
+	        this._author = currentAuthor;
+	        getCurrentBooks();
+	      },
+
+	      get author () {
+	        return this._author;
+	      }
+
+
+	    };
+
 
 	    var service = {
 	      setAuthors: setAuthors,
+	      getAuthors: getAuthors,
+
 	      setCurrentAuthor: setCurrentAuthor,
+	      getCurrentAuthor: getCurrentAuthor,
+	      
 	      setCurrentBook: setCurrentBook,
 	      getCurrentBooks: getCurrentBooks,
+	      
+	      getState: getState,
+	      
 	      randomSelect: randomSelect,
 	      hint: hint
 	    };
@@ -196,12 +159,25 @@
 
 
 	    // /////////////
+	    function getState () {
+	      return state;
+	    }
+
 	    function setAuthors (authors) {
 	      state.authors = authors;
 	    }
 
+	    function getAuthors () {
+	      return $q.when(state.authors);
+	    }
+
 	    function setCurrentAuthor (author) {
 	      state.author = author;
+	      getCurrentBooks();
+	    }
+
+	    function getCurrentAuthor () {
+	      return state.author;
 	    }
 
 	    function setCurrentBook (book) {
@@ -264,18 +240,55 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	(function() {
-	    'use strict';
+	
 
-	    __webpack_require__(6);
+	angular.module('page', [])
+		.controller('pageController', pageController);
 
-	    angular
-	        .module('authors', ['api.services']);
+	pageController.$inject = ["$scope", 'selectedFactory', 'authorsStore'];
+
+	function pageController ($scope, selectedFactory, authorsStore) {
+	  var page = this;
+	  page.hint = selectedFactory.hint;
+	  
+	  activate();
+
+	 ///////////
+
+	  function activate () {
+	    getAuthors();
+	  }
+
+	  function getAuthors () {
+	    return authorsStore.getAuthors().then(getAuthorsSuccess, getAuthorsFailed);
+
+	    function getAuthorsSuccess (authors) {
+	      if (authors instanceof Array) {
+	        selectedFactory.setAuthors(authors);
+	        selectedFactory.setCurrentAuthor(authors[0]);  
+	        page.state = selectedFactory.getState();
+	      }
+	    }
+
+	    function getAuthorsFailed () {
+	      page.error = "Ошибка загрузки авторов";
+	    }
+
+	  }
+
+	  page.randomSelect = function () {
+	    selectedFactory.randomSelect();
+	  }
+
+	  function clearError () {
+	    page.error = undefined;
+	  }
 
 
-	    __webpack_require__(1);
-	    __webpack_require__(8);
-	})();
+
+
+	}
+
 
 /***/ },
 /* 5 */
@@ -284,14 +297,24 @@
 	(function() {
 	    'use strict';
 
-	    __webpack_require__(6);
-
 	    angular
-	        .module('books', ['api.services']);
+	        .module('page')
+	        .controller('mostTalkedAuthorsController', mostTalkedController);
 
+	    mostTalkedController.$inject = ['$scope', 'selectedFactory', 'authorsStore'];
 
-	    __webpack_require__(9);
-	    __webpack_require__(10)
+	    /* @ngInject */
+	    function mostTalkedController($scope, selectedFactory, authorsStore) {
+	        var vm = this;
+	        vm.state = selectedFactory.getState()
+	            
+	        
+	        vm.authorClicked = function (author) {
+	            selectedFactory.setCurrentAuthor(author);
+	        };
+
+	        
+	    }
 	})();
 
 /***/ },
@@ -306,12 +329,18 @@
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(4);
-	__webpack_require__(5);
-	__webpack_require__(3);
+	(function() {
+	    'use strict';
 
-	angular.module('myApp', [ 'page', 'logic.services', 'authors', 'books']);
+	    __webpack_require__(6);
 
+	    angular
+	        .module('authors', ['api.services']);
+
+
+	    __webpack_require__(1);
+	    __webpack_require__(8);
+	})();
 
 /***/ },
 /* 8 */
@@ -369,8 +398,8 @@
 	(function() {
 	  'use strict';
 
-	  var routes = __webpack_require__(12);
-	  __webpack_require__(11);
+	  var routes = __webpack_require__(11);
+	  __webpack_require__(12);
 
 	  module.exports = angular
 	    .module('books')
@@ -458,37 +487,6 @@
 	(function() {
 	  'use strict';
 
-
-	  module.exports = angular
-	    .module('api.services')
-	    .factory('apiFactory', apiFactory);
-
-	  apiFactory.$inject = ['$q', '$http'];
-
-	  function apiFactory ($q, $http) {
-
-	    var service = {
-	      get: get
-	    };
-
-	    return service;
-
-	    function get (apiPath) {
-	      return $http.get(apiPath);
-	    }
-
-	  }
-
-	})();
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function() {
-	  'use strict';
-
 	  var config = __webpack_require__(13);
 
 	  module.exports = {
@@ -511,6 +509,37 @@
 	    return config.apiServer + args.join("/");
 	  }
 
+
+	})();
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	(function() {
+	  'use strict';
+
+
+	  module.exports = angular
+	    .module('api.services')
+	    .factory('apiFactory', apiFactory);
+
+	  apiFactory.$inject = ['$q', '$http'];
+
+	  function apiFactory ($q, $http) {
+
+	    var service = {
+	      get: get
+	    };
+
+	    return service;
+
+	    function get (apiPath) {
+	      return $http.get(apiPath);
+	    }
+
+	  }
 
 	})();
 

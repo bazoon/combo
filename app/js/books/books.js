@@ -8,5 +8,5 @@
 
 
     require('./books_api_factory');
-    require('./books_store_factory')
+    require('./books_store_factory');
 })();

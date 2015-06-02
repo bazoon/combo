@@ -14,7 +14,8 @@
     var cache = $cacheFactory('cache');
 
     var service = {
-      getAuthors: getAuthors
+      getAuthors: getAuthors,
+      getPopularAuthors: getPopularAuthors
     };
 
     return service;
@@ -32,6 +33,22 @@
 
       function getAuthorsSuccess (response) {
         cache.put('authors', response.data);
+        return response.data;
+      }
+
+    }
+
+    function getPopularAuthors () {
+      var popularAuthors = cache.get('popular_authors');
+
+      if (popularAuthors) {
+        return $q.when(popularAuthors);
+      } else {
+        return authorsApiFactory.getPopularAuthors().then(getPopularAuthorsSuccess);
+      }
+
+      function getPopularAuthorsSuccess (response) {
+        cache.put('popular_authors', response.data);
         return response.data;
       }
 

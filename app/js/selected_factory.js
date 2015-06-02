@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  
+  var _ = require("underscore");
 
   module.exports = angular
     .module('logic.services', ['authors', 'books'])
@@ -12,21 +12,39 @@
 
   function selectedFactory ($q, authorsStore, booksStore) {
 
-    var state = {};
+    var state = {
+
+      set author (currentAuthor) {
+        this._author = currentAuthor;
+        getCurrentBooks();
+      },
+
+      get author () {
+        return this._author;
+      }
+
+
+    };
 
     var service = {
       setAuthors: setAuthors,
       setCurrentAuthor: setCurrentAuthor,
       setCurrentBook: setCurrentBook,
-      getCurrentBooks: getCurrentBooks,
       randomSelect: randomSelect,
-      hint: hint
+      getState: getState,
+      hint: hint,
+      changeAuthorById: changeAuthorById
     };
 
     return service;
 
 
     // /////////////
+
+    function getState () {
+      return state;
+    }
+
     function setAuthors (authors) {
       state.authors = authors;
     }
@@ -39,7 +57,7 @@
       state.book = book;
     }
 
-    
+
     function getCurrentBooks () {
       return booksStore.getBooks(state.author.id).then(getBooksSuccess, getBooksFailed);
 
@@ -53,9 +71,8 @@
       }
     }
 
-    function authorChanged () {
-      state.book = undefined;
-      getCurrentBooks();
+    function changeAuthorById (authorId) {
+      state.author = _.find(state.authors, { id: authorId });
     }
 
     function randomSelect () {

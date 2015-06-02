@@ -19,18 +19,29 @@
     </div>
 
     <br>
-
     <div class="row">
       <div class="col-md-3">
         <label for="author">Автор</label>
-        <select id="author" ng-change="page.authorChanged()" ng-model="page.author" ng-options="author.name for author in page.authors">
+        <select id="author" ng-change="page.authorChanged()" ng-model="page.state.author" ng-options="author.name for author in page.state.authors">
         </select>
       </div>
       <div class="col-md-3">
         <label for="book">Книга</label>
-        <select id="book" ng-change="page.bookChanged()" ng-model="page.book" ng-options="book.name for book in page.books">
+        <select id="book" ng-change="page.bookChanged()" ng-model="page.state.book" ng-options="book.name for book in page.state.books">
         </select>       
       </div>
+    
+      <div class="col-md-3 well" ng-controller="PopularAuthorsController as popular">
+        <h4>Популярные авторы</h4>    
+        <ul>
+          <li ng-repeat="author in popular.popularAuthors">
+            <a href="#" ng-click="popular.authorSelected(author)">{{ author.name }}</a>
+          </li>
+        </ul>
+
+      </div>
+
+
     </div>
  
     <br>

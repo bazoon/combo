@@ -5,7 +5,8 @@
 
   module.exports = {
     authorsPath: authorsPath,
-    booksPath: booksPath
+    booksPath: booksPath,
+    popularAuthorsPath: popularAuthorsPath
    };
 
    // /////////
@@ -16,6 +17,10 @@
 
   function booksPath (authorId) {
     return apiPoint("books", authorId);
+  }
+
+  function popularAuthorsPath () {
+    return apiPoint("authors", "popular");
   }
 
   function apiPoint () {

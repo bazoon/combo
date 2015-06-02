@@ -15,7 +15,8 @@
   function authorsApiFactory (apiFactory) {
 
     var service = {
-      getAuthors: getAuthors
+      getAuthors: getAuthors,
+      getPopularAuthors: getPopularAuthors
     };
 
     return service;
@@ -24,6 +25,10 @@
 
     function getAuthors () {
       return apiFactory.get(routes.authorsPath());
+    }
+
+    function getPopularAuthors () {
+      return apiFactory.get(routes.popularAuthorsPath());
     }
 
   }

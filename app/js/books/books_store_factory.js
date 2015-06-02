@@ -25,7 +25,7 @@
 
       var books = cache.get('books' + authorId);
       if (books) {
-        return $q.when(books)
+        return $q.when(books);
       } else {
         return booksApiFactory.getBooks(authorId).then(getBooksSuccess);
       }
